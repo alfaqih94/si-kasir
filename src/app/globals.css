@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+/* Perbaikan kontras dan kejelasan teks pada semua form input */
+@layer base {
+  input,
+  select,
+  textarea {
+    @apply text-slate-900 font-medium placeholder:text-slate-400 placeholder:font-normal;
+  }
+}
+
+/* Styling khusus cetak struk thermal 58mm */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  #printable-receipt,
+  #printable-receipt * {
+    visibility: visible !important;
+  }
+  #printable-receipt {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 58mm !important;
+    padding: 4px !important;
+    margin: 0 !important;
+    background: white !important;
+    color: black !important;
+    font-family: monospace !important;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
