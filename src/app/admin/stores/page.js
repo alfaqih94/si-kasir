@@ -167,26 +167,28 @@ export default function AdminStoresPage() {
                 </div>
               </div>
 
-              <div className="mt-6 flex justify-end gap-2 border-t border-slate-100 pt-4">
-                <button
-                  onClick={() => openModal(s)}
-                  className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-amber-600"
-                >
-                  <Edit2 className="h-3.5 w-3.5" /> Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(s.id)}
-                  className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-red-50 hover:text-red-600"
-                >
-                  <Trash2 className="h-3.5 w-3.5" /> Hapus
-                </button>
+              <div className="mt-6 flex items-center justify-end border-t border-slate-100 pt-4">
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => openModal(s)}
+                    className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-amber-600"
+                  >
+                    <Edit2 className="h-3.5 w-3.5" /> Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(s.id)}
+                    className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-red-50 hover:text-red-600"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" /> Hapus
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Modal Form */}
+      {/* Modal Form Store */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">

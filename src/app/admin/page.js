@@ -21,7 +21,6 @@ import {
   DollarSign,
   FileText,
   Clock,
-  Sparkles,
 } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -108,12 +107,9 @@ export default function AdminDashboardPage() {
       {/* Banner Utama Gradient */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 p-6 sm:p-8 text-white shadow-xl">
         <div className="relative z-10 max-w-2xl">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold backdrop-blur-md mb-3">
-            <Sparkles className="h-3.5 w-3.5 text-amber-200" />
-            <span>Overview Bisnis Real-time</span>
-          </div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold backdrop-blur-md mb-3"></div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Selamat Datang di Panel Admin TopTea
+            Selamat Datang di Panel Admin Top-Top Tea
           </h1>
           <p className="mt-2 text-sm sm:text-base text-amber-100">
             Pantau ringkasan omset, performa cabang, dan aktivitas transaksi
@@ -216,7 +212,7 @@ export default function AdminDashboardPage() {
               Laporan Penjualan
             </span>
             <span className="text-[11px] text-slate-400 mt-0.5">
-              Lihat detail omset
+              Lihat detail penjualan
             </span>
           </Link>
 
@@ -231,7 +227,7 @@ export default function AdminDashboardPage() {
               Kelola Produk
             </span>
             <span className="text-[11px] text-slate-400 mt-0.5">
-              Tambah & atur harga
+              kelola produk, harga dan stok
             </span>
           </Link>
 
@@ -243,10 +239,10 @@ export default function AdminDashboardPage() {
               <Store className="h-6 w-6" />
             </div>
             <span className="mt-3 font-semibold text-slate-800 text-sm">
-              Cabang Toko
+              Kelola Cabang
             </span>
             <span className="text-[11px] text-slate-400 mt-0.5">
-              Manajemen outlet
+              Manajemen cabang
             </span>
           </Link>
 
@@ -258,7 +254,7 @@ export default function AdminDashboardPage() {
               <Users className="h-6 w-6" />
             </div>
             <span className="mt-3 font-semibold text-slate-800 text-sm">
-              Kelola Kasir
+              Kelola Akun
             </span>
             <span className="text-[11px] text-slate-400 mt-0.5">
               Akun & hak akses
@@ -276,9 +272,6 @@ export default function AdminDashboardPage() {
               <h3 className="font-bold text-slate-800 text-lg">
                 Transaksi Terbaru
               </h3>
-              <p className="text-xs text-slate-400">
-                5 transaksi terakhir yang masuk (Real-time)
-              </p>
             </div>
             <Link
               href="/admin/reports"
@@ -294,7 +287,7 @@ export default function AdminDashboardPage() {
             </div>
           ) : recentTransactions.length === 0 ? (
             <div className="py-8 text-center text-slate-400 text-sm">
-              Belum ada transaksi recorded.
+              Belum ada transaksi.
             </div>
           ) : (
             <div className="divide-y divide-slate-100">
@@ -338,11 +331,11 @@ export default function AdminDashboardPage() {
         {/* Kolom Kanan: Status Sistem */}
         <div>
           <div className="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white shadow-lg">
-            <h3 className="font-bold text-lg mb-2">Sistem Siap Operasional</h3>
+            <h3 className="font-bold text-lg mb-2">Sistem Kasir Online</h3>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Seluruh database Firestore dan layanan autentikasi terhubung
-              normal. Staf kasir dapat memproses pesanan secara langsung dari
-              akun masing-masing.
+              Server dan Sistem berjalan stabil. Semua transaksi dan data toko
+              tersinkronisasi secara real-time. Pastikan koneksi internet lancar
+              untuk pengalaman terbaik.
             </p>
             <div className="mt-6 flex items-center gap-2 text-xs font-semibold text-emerald-400 bg-emerald-950/50 p-2.5 rounded-xl border border-emerald-800/40">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>

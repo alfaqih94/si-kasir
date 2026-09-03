@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { Coffee, Lock, Mail } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import Image from "next/image";
+import logoImg from "@/components/logo.jpeg";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -50,11 +52,17 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-slate-900 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
         <div className="mb-8 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-            <Coffee className="h-8 w-8" />
+          <div className="mx-auto flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-amber-100">
+            <Image
+              src={logoImg}
+              alt="Top-Top Tea Logo"
+              width={64}
+              height={64}
+              className="h-full w-full object-cover"
+            />
           </div>
           <h2 className="mt-4 text-2xl font-bold text-slate-800">
-            Kedai Kopi POS
+            Top-Top Tea
           </h2>
           <p className="text-sm text-slate-500">
             Masuk ke akun Anda untuk melanjutkan
@@ -79,7 +87,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="nama@kopi.com"
+                placeholder="email@toptea.com"
                 className="w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-4 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
               />
             </div>

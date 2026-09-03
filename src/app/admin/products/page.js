@@ -10,7 +10,15 @@ import {
   deleteDoc,
   doc,
 } from "firebase/firestore";
-import { Plus, Edit2, Trash2, ShoppingBag, Check, X } from "lucide-react";
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  ShoppingBag,
+  Check,
+  X,
+  Boxes,
+} from "lucide-react";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
@@ -24,6 +32,7 @@ export default function AdminProductsPage() {
   const [category, setCategory] = useState("Kopi");
   const [imageUrl, setImageUrl] = useState("");
   const [isAvailable, setIsAvailable] = useState(true);
+  const [trackStock, setTrackStock] = useState(false); // New State: Lacak Stok
   const [submitting, setSubmitting] = useState(false);
 
   const fetchProducts = async () => {
@@ -54,6 +63,7 @@ export default function AdminProductsPage() {
       setCategory(product.category || "Kopi");
       setImageUrl(product.imageUrl || "");
       setIsAvailable(product.isAvailable ?? true);
+      setTrackStock(product.trackStock ?? false);
     } else {
       setEditingId(null);
       setName("");
@@ -61,6 +71,7 @@ export default function AdminProductsPage() {
       setCategory("Kopi");
       setImageUrl("");
       setIsAvailable(true);
+      setTrackStock(false);
     }
     setIsModalOpen(true);
   };
@@ -76,6 +87,7 @@ export default function AdminProductsPage() {
         category,
         imageUrl,
         isAvailable,
+        trackStock, // Menambahkan trackStock ke payload
       };
 
       if (editingId) {
@@ -151,6 +163,7 @@ export default function AdminProductsPage() {
                 <th className="px-6 py-3">Produk</th>
                 <th className="px-6 py-3">Kategori</th>
                 <th className="px-6 py-3">Harga</th>
+                <th className="px-6 py-3">Lacak Stok</th>
                 <th className="px-6 py-3">Status Menu</th>
                 <th className="px-6 py-3 text-right">Aksi</th>
               </tr>
@@ -177,6 +190,17 @@ export default function AdminProductsPage() {
                   <td className="px-6 py-4">{p.category || "-"}</td>
                   <td className="px-6 py-4 font-semibold text-slate-900">
                     Rp {p.price?.toLocaleString("id-ID")}
+                  </td>
+                  <td className="px-6 py-4">
+                    {p.trackStock ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-700">
+                        <Boxes className="h-3 w-3" /> Ya (Aktif)
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500">
+                        Tidak (Unlim)
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4">
                     <button
@@ -284,17 +308,42 @@ export default function AdminProductsPage() {
                 />
               </div>
 
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="isAvailable"
-                  checked={isAvailable}
-                  onChange={(e) => setIsAvailable(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
-                />
-                <label htmlFor="isAvailable" className="text-sm text-slate-700">
-                  Stok Tersedia
-                </label>
+              <div className="space-y-2 rounded-lg bg-slate-50 p-3 border border-slate-200">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="isAvailable"
+                    checked={isAvailable}
+                    onChange={(e) => setIsAvailable(e.target.checked)}
+                    className="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                  />
+                  <label
+                    htmlFor="isAvailable"
+                    className="text-sm font-medium text-slate-700"
+                  >
+                    Stok Tersedia
+                  </label>
+                </div>
+
+                <div className="flex items-center gap-2 pt-1 border-t border-slate-200">
+                  <input
+                    type="checkbox"
+                    id="trackStock"
+                    checked={trackStock}
+                    onChange={(e) => setTrackStock(e.target.checked)}
+                    className="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                  />
+                  <label
+                    htmlFor="trackStock"
+                    className="text-sm font-medium text-slate-700"
+                  >
+                    Lacak Stok Produk (Unit/Fisik)
+                  </label>
+                </div>
+                <p className="text-[11px] text-slate-500 pl-6">
+                  Centang jika produk ini memiliki jumlah stok fisik per cabang
+                  (seperti minuman botol/snack).
+                </p>
               </div>
 
               <div className="flex justify-end gap-3 pt-4">

@@ -2,7 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 import {
   TrendingUp,
   DollarSign,
@@ -10,6 +17,8 @@ import {
   Store,
   Calendar,
   Filter,
+  Trash2,
+  AlertTriangle,
 } from "lucide-react";
 
 export default function AdminReportsPage() {
@@ -19,53 +28,73 @@ export default function AdminReportsPage() {
 
   // Filter State
   const [selectedStore, setSelectedStore] = useState("ALL");
-  const [selectedPeriod, setSelectedPeriod] = useState("TODAY"); // Default: Hari Ini
+  const [selectedPeriod, setSelectedPeriod] = useState("TODAY"); // TODAY, WEEK, MONTH, CUSTOM
   const [customStart, setCustomStart] = useState("");
   const [customEnd, setCustomEnd] = useState("");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        // Fetch Stores
-        const storesSnap = await getDocs(collection(db, "stores"));
-        const storeList = storesSnap.docs.map((d) => ({
+  // Delete Modal State (Konfirmasi Berlapis)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteStep, setDeleteStep] = useState(1);
+  const [deleteMonth, setDeleteMonth] = useState(new Date().getMonth());
+  const [deleteYear, setDeleteYear] = useState(new Date().getFullYear());
+  const [confirmText, setConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
+
+  const monthsList = [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
+  ];
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const storesSnap = await getDocs(collection(db, "stores"));
+      const storeList = storesSnap.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      }));
+      setStores(storeList);
+
+      const qTransactions = query(
+        collection(db, "transactions"),
+        orderBy("createdAt", "desc"),
+      );
+      const transSnap = await getDocs(qTransactions);
+      const transList = transSnap.docs.map((d) => {
+        const data = d.data();
+        return {
           id: d.id,
-          ...d.data(),
-        }));
-        setStores(storeList);
+          ...data,
+          dateObj: data.createdAt?.toDate
+            ? data.createdAt.toDate()
+            : new Date(),
+        };
+      });
 
-        // Fetch Transactions (diurutkan dari yang terbaru)
-        const qTransactions = query(
-          collection(db, "transactions"),
-          orderBy("createdAt", "desc"),
-        );
-        const transSnap = await getDocs(qTransactions);
-        const transList = transSnap.docs.map((d) => {
-          const data = d.data();
-          return {
-            id: d.id,
-            ...data,
-            dateObj: data.createdAt?.toDate
-              ? data.createdAt.toDate()
-              : new Date(),
-          };
-        });
+      setTransactions(transList);
+    } catch (err) {
+      console.error("Gagal memuat data laporan:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        setTransactions(transList);
-      } catch (err) {
-        console.error("Gagal memuat data laporan:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  useEffect(() => {
     fetchData();
   }, []);
 
   // Filter Logic
   const filteredTransactions = transactions.filter((t) => {
-    // 1. Filter Cabang Toko
     if (selectedStore !== "ALL" && t.storeId !== selectedStore) {
       return false;
     }
@@ -73,7 +102,6 @@ export default function AdminReportsPage() {
     const txDate = t.dateObj;
     const now = new Date();
 
-    // 2. Filter Periode Tanggal
     if (selectedPeriod === "TODAY") {
       const isToday =
         txDate.getDate() === now.getDate() &&
@@ -81,14 +109,12 @@ export default function AdminReportsPage() {
         txDate.getFullYear() === now.getFullYear();
       if (!isToday) return false;
     } else if (selectedPeriod === "WEEK") {
-      // Hitung awal minggu (Hari Senin 00:00:00)
       const day = now.getDay();
       const diffToMonday = day === 0 ? -6 : 1 - day;
       const monday = new Date(now);
       monday.setDate(now.getDate() + diffToMonday);
       monday.setHours(0, 0, 0, 0);
 
-      // Hitung akhir minggu (Hari Minggu 23:59:59)
       const sunday = new Date(monday);
       sunday.setDate(monday.getDate() + 6);
       sunday.setHours(23, 59, 59, 999);
@@ -122,14 +148,59 @@ export default function AdminReportsPage() {
   const totalTransaksi = filteredTransactions.length;
   const avgTransaksi = totalTransaksi > 0 ? totalOmset / totalTransaksi : 0;
 
+  // Handler Hapus Laporan Berdasarkan Rentang Bulan
+  const handleDeleteRange = async () => {
+    if (confirmText !== "HAPUS") return;
+
+    setDeleting(true);
+    try {
+      const targetDocs = transactions.filter((t) => {
+        const m = t.dateObj.getMonth();
+        const y = t.dateObj.getFullYear();
+        return m === Number(deleteMonth) && y === Number(deleteYear);
+      });
+
+      for (const item of targetDocs) {
+        await deleteDoc(doc(db, "transactions", item.id));
+      }
+
+      alert(`Berhasil menghapus ${targetDocs.length} transaksi.`);
+      closeDeleteModal();
+      fetchData();
+    } catch (err) {
+      console.error("Gagal menghapus data:", err);
+      alert("Terjadi kesalahan saat menghapus data.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setDeleteStep(1);
+    setConfirmText("");
+  };
+
   return (
     <div className="space-y-6 pb-10">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Laporan Penjualan</h1>
-        <p className="text-sm text-slate-500">
-          Rekap transaksi dan omset penjualan seluruh cabang
-        </p>
+      {/* Header & Tombol Aksi Hapus */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">
+            Laporan Penjualan
+          </h1>
+          <p className="text-sm text-slate-500">
+            Rekap transaksi dan omset penjualan seluruh cabang
+          </p>
+        </div>
+
+        <button
+          onClick={() => setIsDeleteModalOpen(true)}
+          className="flex items-center justify-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-100 transition shadow-sm"
+        >
+          <Trash2 className="h-4 w-4" />
+          Hapus Database Laporan
+        </button>
       </div>
 
       {/* Control Panel Filter */}
@@ -139,7 +210,7 @@ export default function AdminReportsPage() {
           <span>Filter Laporan</span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-4">
           {/* Filter Cabang */}
           <div className="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 border border-slate-200 text-xs font-medium text-slate-600">
             <Store className="h-4 w-4 text-slate-400" />
@@ -157,57 +228,26 @@ export default function AdminReportsPage() {
             </select>
           </div>
 
-          {/* Opsi Periode Waktu */}
-          <button
-            onClick={() => setSelectedPeriod("TODAY")}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-              selectedPeriod === "TODAY"
-                ? "bg-amber-600 text-white shadow-md shadow-amber-600/20"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-          >
-            Hari Ini
-          </button>
-
-          <button
-            onClick={() => setSelectedPeriod("WEEK")}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-              selectedPeriod === "WEEK"
-                ? "bg-amber-600 text-white shadow-md shadow-amber-600/20"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-          >
-            Minggu Ini (Sen-Min)
-          </button>
-
-          <button
-            onClick={() => setSelectedPeriod("MONTH")}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-              selectedPeriod === "MONTH"
-                ? "bg-amber-600 text-white shadow-md shadow-amber-600/20"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-          >
-            Bulan Ini
-          </button>
-
-          <button
-            onClick={() => setSelectedPeriod("CUSTOM")}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-              selectedPeriod === "CUSTOM"
-                ? "bg-amber-600 text-white shadow-md shadow-amber-600/20"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-          >
-            Pilih Tanggal
-          </button>
+          {/* Filter Rentang Tanggal & Bulan via Dropdown */}
+          <div className="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 border border-slate-200 text-xs font-medium text-slate-600">
+            <Calendar className="h-4 w-4 text-slate-400" />
+            <select
+              value={selectedPeriod}
+              onChange={(e) => setSelectedPeriod(e.target.value)}
+              className="bg-transparent font-semibold text-slate-800 focus:outline-none"
+            >
+              <option value="TODAY">Hari Ini</option>
+              <option value="WEEK">Minggu Ini (Senin - Minggu)</option>
+              <option value="MONTH">Bulan Ini</option>
+              <option value="CUSTOM">Pilih Tanggal Khusus</option>
+            </select>
+          </div>
         </div>
 
         {/* Form Rentang Tanggal Custom */}
         {selectedPeriod === "CUSTOM" && (
           <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center gap-4 text-xs text-slate-600">
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-slate-400" />
               <label className="font-medium">Dari Tanggal:</label>
               <input
                 type="date"
@@ -335,6 +375,132 @@ export default function AdminReportsPage() {
           </table>
         )}
       </div>
+
+      {/* MODAL KONFIRMASI BERLAPIS UNTUK HAPUS DATABASE */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-slate-100 space-y-4">
+            <div className="flex items-center gap-3 text-red-600">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-100">
+                <AlertTriangle className="h-6 w-6" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-800">
+                Hapus Database Laporan
+              </h3>
+            </div>
+
+            {/* Konfirmasi Tahap 1: Pilih Rentang Bulan & Tahun */}
+            {deleteStep === 1 && (
+              <div className="space-y-4 text-xs text-slate-600">
+                <p>
+                  Pilih rentang bulan & tahun laporan transaksi yang ingin
+                  dihapus secara permanen:
+                </p>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block mb-1 font-semibold text-slate-700">
+                      Bulan:
+                    </label>
+                    <select
+                      value={deleteMonth}
+                      onChange={(e) => setDeleteMonth(e.target.value)}
+                      className="w-full rounded-xl border border-slate-300 p-2.5 font-medium focus:outline-none focus:border-red-500"
+                    >
+                      {monthsList.map((m, idx) => (
+                        <option key={idx} value={idx}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block mb-1 font-semibold text-slate-700">
+                      Tahun:
+                    </label>
+                    <select
+                      value={deleteYear}
+                      onChange={(e) => setDeleteYear(e.target.value)}
+                      className="w-full rounded-xl border border-slate-300 p-2.5 font-medium focus:outline-none focus:border-red-500"
+                    >
+                      {[2024, 2025, 2026, 2027].map((y) => (
+                        <option key={y} value={y}>
+                          {y}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="pt-4 flex justify-end gap-2">
+                  <button
+                    onClick={closeDeleteModal}
+                    className="px-4 py-2 rounded-xl bg-slate-100 font-semibold text-slate-600 hover:bg-slate-200"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    onClick={() => setDeleteStep(2)}
+                    className="px-4 py-2 rounded-xl bg-red-600 font-semibold text-white hover:bg-red-700 shadow-md shadow-red-600/20"
+                  >
+                    Lanjut Konfirmasi
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Konfirmasi Tahap 2: Verifikasi Manual Ketik "HAPUS" */}
+            {deleteStep === 2 && (
+              <div className="space-y-4 text-xs text-slate-600">
+                <div className="rounded-xl bg-red-50 p-3 text-red-700 border border-red-200">
+                  <strong>Peringatan!</strong> Semua data transaksi pada periode{" "}
+                  <strong>
+                    {monthsList[deleteMonth]} {deleteYear}
+                  </strong>{" "}
+                  akan dihapus dari database dan tidak dapat dikembalikan lagi.
+                </div>
+
+                <div>
+                  <label className="block mb-1 font-semibold text-slate-700">
+                    Ketik kata{" "}
+                    <span className="text-red-600 font-bold">HAPUS</span> untuk
+                    melanjutkan:
+                  </label>
+                  <input
+                    type="text"
+                    value={confirmText}
+                    onChange={(e) => setConfirmText(e.target.value)}
+                    placeholder="Ketik HAPUS"
+                    className="w-full rounded-xl border border-slate-300 p-2.5 font-bold uppercase focus:outline-none focus:border-red-500"
+                  />
+                </div>
+
+                <div className="pt-2 flex justify-end gap-2">
+                  <button
+                    onClick={() => setDeleteStep(1)}
+                    disabled={deleting}
+                    className="px-4 py-2 rounded-xl bg-slate-100 font-semibold text-slate-600 hover:bg-slate-200"
+                  >
+                    Kembali
+                  </button>
+                  <button
+                    onClick={handleDeleteRange}
+                    disabled={confirmText !== "HAPUS" || deleting}
+                    className={`px-4 py-2 rounded-xl font-semibold text-white transition ${
+                      confirmText === "HAPUS" && !deleting
+                        ? "bg-red-600 hover:bg-red-700 shadow-md shadow-red-600/20"
+                        : "bg-red-300 cursor-not-allowed"
+                    }`}
+                  >
+                    {deleting ? "Menghapus..." : "Ya, Hapus Permanen"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
