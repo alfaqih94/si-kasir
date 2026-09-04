@@ -21,11 +21,11 @@ import {
   ShoppingBag,
   CreditCard,
   CheckCircle2,
-  AlertCircle,
 } from "lucide-react";
 
 export default function KasirPage() {
-  const { userProfile } = useAuth();
+  // Ambil `user` (Firebase Auth) dan `userProfile` (Firestore Doc)
+  const { user, userProfile } = useAuth();
   const [products, setProducts] = useState([]);
   const [storeName, setStoreName] = useState("");
   const [storeStockMap, setStoreStockMap] = useState({});
@@ -85,10 +85,10 @@ export default function KasirPage() {
   };
 
   useEffect(() => {
-    if (userProfile) {
+    if (userProfile || user) {
       fetchPosData();
     }
-  }, [userProfile]);
+  }, [userProfile, user]);
 
   // Handle Cart dengan Validasi Stok
   const addToCart = (product) => {
@@ -160,6 +160,15 @@ export default function KasirPage() {
       return;
     }
 
+    // Mendapatkan ID Kasir dari user auth atau userProfile
+    const activeCashierId =
+      user?.uid || userProfile?.uid || userProfile?.id || "";
+
+    if (!activeCashierId) {
+      alert("Gagal memproses: ID Kasir tidak ditemukan. Silakan login ulang.");
+      return;
+    }
+
     setSubmitting(true);
     try {
       let createdTransactionId = "";
@@ -216,8 +225,8 @@ export default function KasirPage() {
         const transactionData = {
           storeId: userProfile?.storeId || "ADMIN_DIRECT",
           storeName: storeName || "Kedai Kopi",
-          cashierId: userProfile?.uid || "",
-          cashierName: userProfile?.name || "Kasir",
+          cashierId: activeCashierId,
+          cashierName: userProfile?.name || user?.displayName || "Kasir",
           items: cart.map((item) => ({
             productId: item.id,
             name: item.name,
@@ -241,7 +250,7 @@ export default function KasirPage() {
       setTransactionSuccess({
         id: createdTransactionId,
         storeName: storeName || "Kedai Kopi",
-        cashierName: userProfile?.name || "Kasir",
+        cashierName: userProfile?.name || user?.displayName || "Kasir",
         items: cart.map((item) => ({
           productId: item.id,
           name: item.name,
@@ -272,7 +281,7 @@ export default function KasirPage() {
   );
 
   return (
-    <>
+    <div className="flex flex-1 h-full w-full overflow-hidden">
       {/* Left Panel: Catalog Produk */}
       <div className="flex flex-1 flex-col overflow-y-auto p-6">
         {/* Search Bar */}
@@ -629,6 +638,6 @@ export default function KasirPage() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

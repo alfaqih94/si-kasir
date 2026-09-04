@@ -2,8 +2,8 @@ import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
 
 export const metadata = {
-  title: "POS Kedai Kopi",
-  description: "Aplikasi Kasir Kedai Kopi",
+  title: "Top-Top Tea",
+  description: "Aplikasi Kasir Top-Top Tea",
 };
 
 export default function RootLayout({ children }) {

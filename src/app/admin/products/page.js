@@ -60,7 +60,7 @@ export default function AdminProductsPage() {
       setEditingId(product.id);
       setName(product.name || "");
       setPrice(product.price || "");
-      setCategory(product.category || "Kopi");
+      setCategory(product.category || "Minuman");
       setImageUrl(product.imageUrl || "");
       setIsAvailable(product.isAvailable ?? true);
       setTrackStock(product.trackStock ?? false);
@@ -68,7 +68,7 @@ export default function AdminProductsPage() {
       setEditingId(null);
       setName("");
       setPrice("");
-      setCategory("Kopi");
+      setCategory("Minuman");
       setImageUrl("");
       setIsAvailable(true);
       setTrackStock(false);
@@ -273,8 +273,7 @@ export default function AdminProductsPage() {
                   onChange={(e) => setCategory(e.target.value)}
                   className="mt-1 w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:border-amber-500 focus:outline-none"
                 >
-                  <option value="Kopi">Kopi</option>
-                  <option value="Non-Kopi">Non-Kopi</option>
+                  <option value="Minuman">Minuman</option>
                   <option value="Makanan">Makanan</option>
                   <option value="Snack">Snack</option>
                 </select>

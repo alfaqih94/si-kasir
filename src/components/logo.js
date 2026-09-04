@@ -1,5 +1,5 @@
 import Image from "next/image";
-import logoImg from "@/components/logo.jpeg"; // Menggunakan alias @/ atau relative path
+import logoImg from "@/components/logo.png"; // Menggunakan alias @/ atau relative path
 
 export default function Header() {
   return (
@@ -7,11 +7,12 @@ export default function Header() {
       <Image
         src={logoImg}
         alt="Logo Toko"
+        priority
         width={40}
         height={40}
         className="h-10 w-10 object-contain rounded-lg"
       />
-      <span className="font-bold text-slate-800">Kedai Kopi</span>
+      <span className="font-bold text-slate-800">Top - Top Tea</span>
     </div>
   );
 }
