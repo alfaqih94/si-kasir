@@ -578,7 +578,7 @@ export default function KasirPage() {
                 {transactionSuccess.items.map((item, idx) => (
                   <div key={idx} className="flex justify-between">
                     <span>
-                      {item.name} x{item.qty}
+                      {item.qty}x {item.name}
                     </span>
                     <span>Rp {item.subtotal.toLocaleString("id-ID")}</span>
                   </div>

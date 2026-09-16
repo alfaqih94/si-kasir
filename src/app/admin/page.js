@@ -200,22 +200,7 @@ export default function AdminDashboardPage() {
         <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
           <span>Akses Cepat Admin</span>
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <Link
-            href="/admin/reports"
-            className="group flex flex-col items-center justify-center rounded-2xl bg-white p-5 border border-slate-200/80 shadow-sm hover:border-amber-500 hover:shadow-md transition-all text-center"
-          >
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 group-hover:scale-110 transition-transform">
-              <FileText className="h-6 w-6" />
-            </div>
-            <span className="mt-3 font-semibold text-slate-800 text-sm">
-              Laporan Penjualan
-            </span>
-            <span className="text-[11px] text-slate-400 mt-0.5">
-              Lihat detail penjualan
-            </span>
-          </Link>
-
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <Link
             href="/admin/products"
             className="group flex flex-col items-center justify-center rounded-2xl bg-white p-5 border border-slate-200/80 shadow-sm hover:border-indigo-500 hover:shadow-md transition-all text-center"
@@ -228,6 +213,51 @@ export default function AdminDashboardPage() {
             </span>
             <span className="text-[11px] text-slate-400 mt-0.5">
               kelola produk, harga dan stok
+            </span>
+          </Link>
+
+          <Link
+            href="/admin/stocks"
+            className="group flex flex-col items-center justify-center rounded-2xl bg-white p-5 border border-slate-200/80 shadow-sm hover:border-indigo-500 hover:shadow-md transition-all text-center"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700 group-hover:scale-110 transition-transform">
+              <Package className="h-6 w-6" />
+            </div>
+            <span className="mt-3 font-semibold text-slate-800 text-sm">
+              Kelola Stok
+            </span>
+            <span className="text-[11px] text-slate-400 mt-0.5">
+              kelola stok produk
+            </span>
+          </Link>
+
+          <Link
+            href="/admin/daily"
+            className="group flex flex-col items-center justify-center rounded-2xl bg-white p-5 border border-slate-200/80 shadow-sm hover:border-amber-500 hover:shadow-md transition-all text-center"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 group-hover:scale-110 transition-transform">
+              <FileText className="h-6 w-6" />
+            </div>
+            <span className="mt-3 font-semibold text-slate-800 text-sm">
+              Laporan Penjualan Harian
+            </span>
+            <span className="text-[11px] text-slate-400 mt-0.5">
+              Lihat detail penjualan Harian
+            </span>
+          </Link>
+
+          <Link
+            href="/admin/reports"
+            className="group flex flex-col items-center justify-center rounded-2xl bg-white p-5 border border-slate-200/80 shadow-sm hover:border-amber-500 hover:shadow-md transition-all text-center"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 group-hover:scale-110 transition-transform">
+              <FileText className="h-6 w-6" />
+            </div>
+            <span className="mt-3 font-semibold text-slate-800 text-sm">
+              Laporan Penjualan
+            </span>
+            <span className="text-[11px] text-slate-400 mt-0.5">
+              Lihat detail penjualan
             </span>
           </Link>
 
@@ -331,15 +361,21 @@ export default function AdminDashboardPage() {
         {/* Kolom Kanan: Status Sistem */}
         <div>
           <div className="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white shadow-lg">
-            <h3 className="font-bold text-lg mb-2">Sistem Kasir Online</h3>
+            <h3 className="font-bold text-lg mb-2">Sistem Kasir TOP-TOP TEA</h3>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Server dan Sistem berjalan stabil. Semua transaksi dan data toko
-              tersinkronisasi secara real-time. Pastikan koneksi internet lancar
-              untuk pengalaman terbaik.
+              Server dan Sistem berjalan stabil. Semua transaksi, data toko,
+              Produk, dan Data Stok tersinkronisasi secara real-time. <br></br>
+              Pastikan koneksi internet lancar untuk pengalaman terbaik.
             </p>
             <div className="mt-6 flex items-center gap-2 text-xs font-semibold text-emerald-400 bg-emerald-950/50 p-2.5 rounded-xl border border-emerald-800/40">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              Status Server: Online & Stabil
+              Status Server: Online & Stable<br></br>Last Sync:{" "}
+              {new Date().toLocaleString("id-ID")}
+            </div>
+            <div className="mt-6 flex items-center gap-2 text-xs font-semibold text-emerald-400 bg-emerald-950/50 p-2.5 rounded-xl border border-emerald-800/40">
+              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              Database Version: 1.10.10-5 <br></br>Database Source: Firebase
+              Firestore
             </div>
           </div>
         </div>

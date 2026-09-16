@@ -19,6 +19,9 @@ import {
   Filter,
   Trash2,
   AlertTriangle,
+  CheckCircle2,
+  AlertCircle,
+  X,
 } from "lucide-react";
 
 export default function AdminReportsPage() {
@@ -39,6 +42,22 @@ export default function AdminReportsPage() {
   const [deleteYear, setDeleteYear] = useState(new Date().getFullYear());
   const [confirmText, setConfirmText] = useState("");
   const [deleting, setDeleting] = useState(false);
+
+  // State Modal Notification Profesional
+  const [dialog, setDialog] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "success", // 'success' | 'error'
+  });
+
+  const showNotification = (title, message, type = "success") => {
+    setDialog({ isOpen: true, title, message, type });
+  };
+
+  const closeNotification = () => {
+    setDialog((prev) => ({ ...prev, isOpen: false }));
+  };
 
   const monthsList = [
     "Januari",
@@ -164,12 +183,20 @@ export default function AdminReportsPage() {
         await deleteDoc(doc(db, "transactions", item.id));
       }
 
-      alert(`Berhasil menghapus ${targetDocs.length} transaksi.`);
       closeDeleteModal();
+      showNotification(
+        "Berhasil Dihapus",
+        `Sebanyak ${targetDocs.length} transaksi pada periode tersebut telah berhasil dihapus dari database.`,
+        "success",
+      );
       fetchData();
     } catch (err) {
       console.error("Gagal menghapus data:", err);
-      alert("Terjadi kesalahan saat menghapus data.");
+      showNotification(
+        "Gagal Menghapus",
+        "Terjadi kesalahan saat menghapus data laporan. Silakan coba lagi.",
+        "error",
+      );
     } finally {
       setDeleting(false);
     }
@@ -196,7 +223,7 @@ export default function AdminReportsPage() {
 
         <button
           onClick={() => setIsDeleteModalOpen(true)}
-          className="flex items-center justify-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-100 transition shadow-sm"
+          className="flex items-center justify-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-100 transition shadow-sm active:scale-95"
         >
           <Trash2 className="h-4 w-4" />
           Hapus Database Laporan
@@ -489,7 +516,7 @@ export default function AdminReportsPage() {
                     disabled={confirmText !== "HAPUS" || deleting}
                     className={`px-4 py-2 rounded-xl font-semibold text-white transition ${
                       confirmText === "HAPUS" && !deleting
-                        ? "bg-red-600 hover:bg-red-700 shadow-md shadow-red-600/20"
+                        ? "bg-red-600 hover:bg-red-700 shadow-md shadow-red-600/20 active:scale-95"
                         : "bg-red-300 cursor-not-allowed"
                     }`}
                   >
@@ -498,6 +525,44 @@ export default function AdminReportsPage() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Dialog Alert Profesional */}
+      {dialog.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl transition-all">
+            <button
+              onClick={closeNotification}
+              className="absolute right-4 top-4 rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="flex flex-col items-center text-center">
+              {dialog.type === "success" ? (
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                  <CheckCircle2 className="h-8 w-8" />
+                </div>
+              ) : (
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100 text-red-600">
+                  <AlertCircle className="h-8 w-8" />
+                </div>
+              )}
+
+              <h3 className="text-lg font-bold text-slate-800">
+                {dialog.title}
+              </h3>
+              <p className="mt-2 text-xs text-slate-500">{dialog.message}</p>
+
+              <button
+                onClick={closeNotification}
+                className="mt-6 w-full rounded-xl bg-slate-900 py-2.5 text-xs font-bold text-white transition hover:bg-slate-800 active:scale-95"
+              >
+                Mengerti
+              </button>
+            </div>
           </div>
         </div>
       )}
